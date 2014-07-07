@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body{
+            font-family: arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<h1>Detect Image Type</h1>
+Step 1. <input type="file" id="fileInput" name="file"/>
+<br><br>
+<div id="name"></div>
+<div id="type"></div>
+<div id="size"></div>
+<br><br>
+
+Step 2. <button onclick="getImageFromServer('img/image_252kb.jpg',2)">Get jpg from server</button>
+<br><br>
+<div id="type2"></div>
+<div id="size2"></div>
+<br><br>
+
+Step 3. <button onclick="getImageFromServer('img/image_252kb.png',3)">Get jpg from server</button>
+<br><br>
+<div id="type3"></div>
+<div id="size3"></div>
+<br><br>
+
+Step 4. <button onclick="getImageFromServer('img/image_26kb.gif',4)">Get gif from server</button>
+<br><br>
+<div id="type4"></div>
+<div id="size4"></div>
+<br><br>
+
+Step 5. <button onclick="getImageFromServer('img/image_26kb.gif',5)">Get bmp from server</button>
+<br><br>
+<div id="type5"></div>
+<div id="size5"></div>
+<br><br>
+
+<script>
+
+    var fileInput = document.getElementById("fileInput");
+    fileInput.addEventListener("change",function(event){
+        document.getElementById("name").innerHTML = "NAME: " + event.target.files[0].name;
+        document.getElementById("type").innerHTML = "TYPE: " + event.target.files[0].type;
+        document.getElementById("size").innerHTML = "SIZE: " + event.target.files[0].size;
+    });
+
+    function getImageFromServer(path,index){
+        var xhr = new XMLHttpRequest();
+        xhr.path = path;
+        xhr.open("GET",path,true);
+        xhr.responseType = "arraybuffer";
+        xhr.onload = function(e){
+            if(this.status == 200){
+                getImageType(this.response,function(result){
+                    document.getElementById("type" + index).innerHTML = "TYPE: " + result;
+                    document.getElementById("size" + index).innerHTML = "SIZE: " + this.response.byteLength;
+                }.bind(this))
+            }
+            else{
+                console.log("Problem retrieving image " + JSON.stringify(e))
+            }
+        }
+        xhr.send();
+    }
+
+    /**
+     * Get image type via magic number.
+     * Extracts first 2 bytes and converts to hex.
+     * More info on magic numbers: http://www.garykessler.net/library/file_sigs.html
+     */
+    function getImageType(arrayBuffer,callback){
+        var type = "";
+        var dv = new DataView(arrayBuffer,0,5);
+        var nume1 = dv.getUint8(0,true);
+        var nume2 = dv.getUint8(1,true);
+        var hex = nume1.toString(16) + nume2.toString(16) ;
+
+        switch(hex){
+            case "8950":
+                type = "image/png";
+                break;
+            case "4749":
+                type = "image/gif";
+                break;
+            case "424d":
+                type = "image/bmp";
+                break;
+            case "ffd8":
+                type = "image/jpeg";
+                break;
+            default:
+                type = null;
+                break;
+        }
+        callback(type);
+    }
+</script>
+</body>
+</html>

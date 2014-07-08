@@ -58,10 +58,9 @@ Step 5. <button onclick="getImageFromServer('img/image_180kb.bmp',5)">Get bmp fr
         xhr.responseType = "arraybuffer";
         xhr.onload = function(e){
             if(this.status == 200){
-                getImageType(this.response,function(result){
-                    document.getElementById("type" + index).innerHTML = "TYPE: " + result;
-                    document.getElementById("size" + index).innerHTML = "SIZE: " + this.response.byteLength;
-                }.bind(this))
+                var imageType = getImageType(this.response);
+                document.getElementById("type" + index).innerHTML = "TYPE: " + imageType;
+                document.getElementById("size" + index).innerHTML = "SIZE: " + this.response.byteLength;
             }
             else{
                 console.log("Problem retrieving image " + JSON.stringify(e))
@@ -75,7 +74,7 @@ Step 5. <button onclick="getImageFromServer('img/image_180kb.bmp',5)">Get bmp fr
      * Extracts first 2 bytes and converts to hex.
      * More info on magic numbers: http://www.garykessler.net/library/file_sigs.html
      */
-    function getImageType(arrayBuffer,callback){
+    function getImageType(arrayBuffer){
         var type = "";
         var dv = new DataView(arrayBuffer,0,5);
         var nume1 = dv.getUint8(0,true);
@@ -99,7 +98,7 @@ Step 5. <button onclick="getImageFromServer('img/image_180kb.bmp',5)">Get bmp fr
                 type = null;
                 break;
         }
-        callback(type);
+        return type;
     }
 </script>
 </body>
